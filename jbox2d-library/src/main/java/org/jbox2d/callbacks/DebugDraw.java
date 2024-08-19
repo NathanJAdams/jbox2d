@@ -32,6 +32,9 @@ import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.particle.ParticleColor;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * Implement this abstract class to allow JBox2d to automatically draw your physics for debugging
  * purposes. Not intended to replace your own custom rendering routines!
@@ -39,24 +42,17 @@ import org.jbox2d.particle.ParticleColor;
  * @author Daniel Murphy
  */
 public abstract class DebugDraw {
+  public enum Flag {
+    SHAPES,
+    JOINTS,
+    AABB,
+    PAIR,
+    CENTER_OF_MASS,
+    DYNAMIC_TREE,
+    WIREFRAME_DRAWING
+  }
 
-  /** Draw shapes */
-  public static final int e_shapeBit = 1 << 1;
-  /** Draw joint connections */
-  public static final int e_jointBit = 1 << 2;
-  /** Draw axis aligned bounding boxes */
-  public static final int e_aabbBit = 1 << 3;
-  /** Draw pairs of connected objects */
-  public static final int e_pairBit = 1 << 4;
-  /** Draw center of mass frame */
-  public static final int e_centerOfMassBit = 1 << 5;
-  /** Draw dynamic tree */
-  public static final int e_dynamicTreeBit = 1 << 6;
-  /** Draw only the wireframe for drawing performance */
-  public static final int e_wireframeDrawingBit = 1 << 7;
-
-
-  protected int m_drawFlags;
+  private final Set<Flag> drawFlags = EnumSet.noneOf(Flag.class);
   protected IViewportTransform viewportTransform;
 
   public DebugDraw() {
@@ -64,7 +60,6 @@ public abstract class DebugDraw {
   }
 
   public DebugDraw(IViewportTransform viewport) {
-    m_drawFlags = 0;
     viewportTransform = viewport;
   }
 
@@ -72,20 +67,20 @@ public abstract class DebugDraw {
     this.viewportTransform = viewportTransform;
   }
 
-  public void setFlags(int flags) {
-    m_drawFlags = flags;
+  public void addFlag(Flag flag) {
+    drawFlags.add(flag);
   }
 
-  public int getFlags() {
-    return m_drawFlags;
+  public void removeFlag(Flag flag) {
+    drawFlags.remove(flag);
   }
 
-  public void appendFlags(int flags) {
-    m_drawFlags |= flags;
+  public void clearFlags() {
+    drawFlags.clear();
   }
 
-  public void clearFlags(int flags) {
-    m_drawFlags &= ~flags;
+  public boolean hasFlag(Flag flag) {
+    return drawFlags.contains(flag);
   }
 
   /**

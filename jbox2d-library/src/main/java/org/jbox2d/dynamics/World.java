@@ -77,7 +77,7 @@ import org.jbox2d.pooling.arrays.Vec2Array;
 import org.jbox2d.pooling.normal.DefaultWorldPool;
 
 /**
- * The world class manages all physics entities, dynamic simulation, and asynchronous queries. The
+ * The World class manages all physics entities, dynamic simulation, and asynchronous queries. The
  * world also contains efficient memory management facilities.
  * 
  * @author Daniel Murphy
@@ -128,13 +128,11 @@ public class World {
 
   private boolean m_stepComplete;
 
-  private Profile m_profile;
+  private final Profile m_profile;
 
-  private ParticleSystem m_particleSystem;
+  private final ParticleSystem m_particleSystem;
 
-
-  private ContactRegister[][] contactStacks =
-      new ContactRegister[ShapeType.values().length][ShapeType.values().length];
+  private final ContactRegister[][] contactStacks = new ContactRegister[ShapeType.values().length][ShapeType.values().length];
 
   /**
    * Construct a world object.
@@ -195,7 +193,7 @@ public class World {
     }
 
     m_allowSleep = flag;
-    if (m_allowSleep == false) {
+    if (!m_allowSleep) {
       for (Body b = m_bodyList; b != null; b = b.m_next) {
         b.setAwake(true);
       }
@@ -336,7 +334,7 @@ public class World {
    * @return
    */
   public Body createBody(BodyDef def) {
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return null;
     }
@@ -365,7 +363,7 @@ public class World {
    */
   public void destroyBody(Body body) {
     assert (m_bodyCount > 0);
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return;
     }
@@ -383,7 +381,6 @@ public class World {
 
       body.m_jointList = je;
     }
-    body.m_jointList = null;
 
     // Delete the attached contacts.
     ContactEdge ce = body.m_contactList;
@@ -409,7 +406,6 @@ public class World {
       body.m_fixtureList = f;
       body.m_fixtureCount -= 1;
     }
-    body.m_fixtureList = null;
     body.m_fixtureCount = 0;
 
     // Remove world body list.
@@ -438,7 +434,7 @@ public class World {
    * @return
    */
   public Joint createJoint(JointDef def) {
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return null;
     }
@@ -477,7 +473,7 @@ public class World {
     Body bodyB = def.bodyB;
 
     // If the joint prevents collisions, then flag any contacts for filtering.
-    if (def.collideConnected == false) {
+    if (!def.collideConnected) {
       ContactEdge edge = bodyB.getContactList();
       while (edge != null) {
         if (edge.other == bodyA) {
@@ -499,10 +495,10 @@ public class World {
    * destroy a joint. This may cause the connected bodies to begin colliding.
    * 
    * @warning This function is locked during callbacks.
-   * @param joint
+   * @param j
    */
   public void destroyJoint(Joint j) {
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return;
     }
@@ -568,7 +564,7 @@ public class World {
     --m_jointCount;
 
     // If the joint prevents collisions, then flag any contacts for filtering.
-    if (collideConnected == false) {
+    if (!collideConnected) {
       ContactEdge edge = bodyB.getContactList();
       while (edge != null) {
         if (edge.other == bodyA) {
@@ -590,7 +586,7 @@ public class World {
   /**
    * Take a time step. This performs collision detection, integration, and constraint solution.
    * 
-   * @param timeStep the amount of time to simulate, this should not vary.
+   * @param dt the amount of time to simulate, this should not vary.
    * @param velocityIterations for the velocity constraint solver.
    * @param positionIterations for the position constraint solver.
    */
@@ -662,7 +658,7 @@ public class World {
    * each call to Step, unless you are performing sub-steps. By default, forces will be
    * automatically cleared, so you don't need to call this function.
    * 
-   * @see setAutoClearForces
+   * @see World#setAutoClearForces(boolean)
    */
   public void clearForces() {
     for (Body body = m_bodyList; body != null; body = body.getNext()) {
@@ -686,14 +682,13 @@ public class World {
     }
 
 
-    int flags = m_debugDraw.getFlags();
-    boolean wireframe = (flags & DebugDraw.e_wireframeDrawingBit) != 0;
+    boolean wireframe = m_debugDraw.hasFlag(DebugDraw.Flag.WIREFRAME_DRAWING);
 
-    if ((flags & DebugDraw.e_shapeBit) != 0) {
+    if (m_debugDraw.hasFlag(DebugDraw.Flag.SHAPES)) {
       for (Body b = m_bodyList; b != null; b = b.getNext()) {
         xf.set(b.getTransform());
         for (Fixture f = b.getFixtureList(); f != null; f = f.getNext()) {
-          if (b.isActive() == false) {
+          if (!b.isActive()) {
             color.set(0.5f, 0.5f, 0.3f);
             drawShape(f, xf, color, wireframe);
           } else if (b.getType() == BodyType.STATIC) {
@@ -702,7 +697,7 @@ public class World {
           } else if (b.getType() == BodyType.KINEMATIC) {
             color.set(0.5f, 0.5f, 0.9f);
             drawShape(f, xf, color, wireframe);
-          } else if (b.isAwake() == false) {
+          } else if (!b.isAwake()) {
             color.set(0.5f, 0.5f, 0.5f);
             drawShape(f, xf, color, wireframe);
           } else {
@@ -714,13 +709,13 @@ public class World {
       drawParticleSystem(m_particleSystem);
     }
 
-    if ((flags & DebugDraw.e_jointBit) != 0) {
+    if (m_debugDraw.hasFlag(DebugDraw.Flag.JOINTS)) {
       for (Joint j = m_jointList; j != null; j = j.getNext()) {
         drawJoint(j);
       }
     }
 
-    if ((flags & DebugDraw.e_pairBit) != 0) {
+    if (m_debugDraw.hasFlag(DebugDraw.Flag.PAIR)) {
       color.set(0.3f, 0.9f, 0.9f);
       for (Contact c = m_contactManager.m_contactList; c != null; c = c.getNext()) {
         Fixture fixtureA = c.getFixtureA();
@@ -731,11 +726,11 @@ public class World {
       }
     }
 
-    if ((flags & DebugDraw.e_aabbBit) != 0) {
+    if (m_debugDraw.hasFlag(DebugDraw.Flag.AABB)) {
       color.set(0.9f, 0.3f, 0.9f);
 
       for (Body b = m_bodyList; b != null; b = b.getNext()) {
-        if (b.isActive() == false) {
+        if (!b.isActive()) {
           continue;
         }
 
@@ -756,7 +751,7 @@ public class World {
       }
     }
 
-    if ((flags & DebugDraw.e_centerOfMassBit) != 0) {
+    if (m_debugDraw.hasFlag(DebugDraw.Flag.CENTER_OF_MASS)) {
       for (Body b = m_bodyList; b != null; b = b.getNext()) {
         xf.set(b.getTransform());
         xf.p.set(b.getWorldCenter());
@@ -764,7 +759,7 @@ public class World {
       }
     }
 
-    if ((flags & DebugDraw.e_dynamicTreeBit) != 0) {
+    if (m_debugDraw.hasFlag(DebugDraw.Flag.DYNAMIC_TREE)) {
       m_contactManager.m_broadPhase.drawTree(m_debugDraw);
     }
 
@@ -1095,7 +1090,7 @@ public class World {
         continue;
       }
 
-      if (seed.isAwake() == false || seed.isActive() == false) {
+      if (!seed.isAwake() || !seed.isActive()) {
         continue;
       }
 
@@ -1114,7 +1109,7 @@ public class World {
       while (stackCount > 0) {
         // Grab the next body off the stack and add it to the island.
         Body b = stack[--stackCount];
-        assert (b.isActive() == true);
+        assert (b.isActive());
         island.add(b);
 
         // Make sure the body is awake.
@@ -1136,7 +1131,7 @@ public class World {
           }
 
           // Is this contact solid and touching?
-          if (contact.isEnabled() == false || contact.isTouching() == false) {
+          if (!contact.isEnabled() || !contact.isTouching()) {
             continue;
           }
 
@@ -1164,14 +1159,14 @@ public class World {
 
         // Search all joints connect to this body.
         for (JointEdge je = b.m_jointList; je != null; je = je.next) {
-          if (je.joint.m_islandFlag == true) {
+          if (je.joint.m_islandFlag) {
             continue;
           }
 
           Body other = je.other;
 
           // Don't simulate joints connected to inactive bodies.
-          if (other.isActive() == false) {
+          if (!other.isActive()) {
             continue;
           }
 
@@ -1258,7 +1253,7 @@ public class World {
 
       for (Contact c = m_contactManager.m_contactList; c != null; c = c.m_next) {
         // Is this contact disabled?
-        if (c.isEnabled() == false) {
+        if (!c.isEnabled()) {
           continue;
         }
 
@@ -1291,7 +1286,7 @@ public class World {
           boolean activeB = bB.isAwake() && typeB != BodyType.STATIC;
 
           // Is at least one body active (awake and dynamic or kinematic)?
-          if (activeA == false && activeB == false) {
+          if (!activeA && !activeB) {
             continue;
           }
 
@@ -1299,7 +1294,7 @@ public class World {
           boolean collideB = bB.isBullet() || typeB != BodyType.DYNAMIC;
 
           // Are these two non-bullet dynamic bodies?
-          if (collideA == false && collideB == false) {
+          if (!collideA && !collideB) {
             continue;
           }
 
@@ -1334,8 +1329,6 @@ public class World {
           float beta = toiOutput.t;
           if (toiOutput.state == TOIOutputState.TOUCHING) {
             alpha = MathUtils.min(alpha0 + (1.0f - alpha0) * beta, 1.0f);
-          } else {
-            alpha = 1.0f;
           }
 
           c.m_toi = alpha;
@@ -1373,7 +1366,7 @@ public class World {
       ++minContact.m_toiCount;
 
       // Is the contact solid?
-      if (minContact.isEnabled() == false || minContact.isTouching() == false) {
+      if (!minContact.isEnabled() || !minContact.isTouching()) {
         // Restore the sweeps.
         minContact.setEnabled(false);
         bA.m_sweep.set(backup1);
@@ -1420,8 +1413,7 @@ public class World {
 
             // Only add static, kinematic, or bullet bodies.
             Body other = ce.other;
-            if (other.m_type == BodyType.DYNAMIC && body.isBullet() == false
-                && other.isBullet() == false) {
+            if ((other.m_type == BodyType.DYNAMIC) && !body.isBullet() && !other.isBullet()) {
               continue;
             }
 
@@ -1442,14 +1434,14 @@ public class World {
             contact.update(m_contactManager.m_contactListener);
 
             // Was the contact disabled by the user?
-            if (contact.isEnabled() == false) {
+            if (!contact.isEnabled()) {
               other.m_sweep.set(backup1);
               other.synchronizeTransform();
               continue;
             }
 
             // Are there contact points?
-            if (contact.isTouching() == false) {
+            if (!contact.isTouching()) {
               other.m_sweep.set(backup1);
               other.synchronizeTransform();
               continue;
@@ -1555,8 +1547,8 @@ public class World {
 
   // NOTE this corresponds to the liquid test, so the debugdraw can draw
   // the liquid particles correctly. They should be the same.
-  private static Integer LIQUID_INT = new Integer(1234598372);
-  private float liquidLength = .12f;
+  private static final Integer LIQUID_INT = 1234598372;
+  private final float liquidLength = .12f;
   private float averageLinearVel = -1;
   private final Vec2 liquidOffset = new Vec2();
   private final Vec2 circCenterMoved = new Vec2();
@@ -1645,7 +1637,7 @@ public class World {
   }
 
   private void drawParticleSystem(ParticleSystem system) {
-    boolean wireframe = (m_debugDraw.getFlags() & DebugDraw.e_wireframeDrawingBit) != 0;
+    boolean wireframe = m_debugDraw.hasFlag(DebugDraw.Flag.WIREFRAME_DRAWING);
     int particleCount = system.getParticleCount();
     if (particleCount != 0) {
       float particleRadius = system.getParticleRadius();
@@ -1673,7 +1665,7 @@ public class World {
    * @return the index of the particle.
    */
   public int createParticle(ParticleDef def) {
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return 0;
     }
@@ -1693,8 +1685,8 @@ public class World {
   /**
    * Destroy a particle. The particle is removed after the next step.
    * 
-   * @param Index of the particle to destroy.
-   * @param Whether to call the destruction listener just before the particle is destroyed.
+   * @param index of the particle to destroy.
+   * @param callDestructionListener Whether to call the destruction listener just before the particle is destroyed.
    */
   public void destroyParticle(int index, boolean callDestructionListener) {
     m_particleSystem.destroyParticle(index, callDestructionListener);
@@ -1705,8 +1697,8 @@ public class World {
    * particles. This function is locked during callbacks. For more information see
    * DestroyParticleInShape(Shape&, Transform&,bool).
    * 
-   * @param Shape which encloses particles that should be destroyed.
-   * @param Transform applied to the shape.
+   * @param shape Shape which encloses particles that should be destroyed.
+   * @param xf Transform applied to the shape.
    * @warning This function is locked during callbacks.
    * @return Number of particles destroyed.
    */
@@ -1719,9 +1711,9 @@ public class World {
    * function immediately destroys particles in the shape in contrast to DestroyParticle() which
    * defers the destruction until the next simulation step.
    * 
-   * @param Shape which encloses particles that should be destroyed.
-   * @param Transform applied to the shape.
-   * @param Whether to call the world b2DestructionListener for each particle destroyed.
+   * @param shape Shape which encloses particles that should be destroyed.
+   * @param xf Transform applied to the shape.
+   * @param callDestructionListener Whether to call the world b2DestructionListener for each particle destroyed.
    * @warning This function is locked during callbacks.
    * @return Number of particles destroyed.
    */
@@ -1740,7 +1732,7 @@ public class World {
    * @warning This function is locked during callbacks.
    */
   public ParticleGroup createParticleGroup(ParticleGroupDef def) {
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return null;
     }
@@ -1751,12 +1743,12 @@ public class World {
   /**
    * Join two particle groups.
    * 
-   * @param the first group. Expands to encompass the second group.
-   * @param the second group. It is destroyed.
+   * @param groupA the first group. Expands to encompass the second group.
+   * @param groupB the second group. It is destroyed.
    * @warning This function is locked during callbacks.
    */
   public void joinParticleGroups(ParticleGroup groupA, ParticleGroup groupB) {
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return;
     }
@@ -1766,12 +1758,12 @@ public class World {
   /**
    * Destroy particles in a group. This function is locked during callbacks.
    * 
-   * @param The particle group to destroy.
-   * @param Whether to call the world b2DestructionListener for each particle is destroyed.
+   * @param group The particle group to destroy.
+   * @param callDestructionListener Whether to call the world b2DestructionListener for each particle is destroyed.
    * @warning This function is locked during callbacks.
    */
   public void destroyParticlesInGroup(ParticleGroup group, boolean callDestructionListener) {
-    assert (isLocked() == false);
+    assert (!isLocked());
     if (isLocked()) {
       return;
     }
@@ -1782,7 +1774,7 @@ public class World {
    * Destroy particles in a group without enabling the destruction callback for destroyed particles.
    * This function is locked during callbacks.
    * 
-   * @param The particle group to destroy.
+   * @param group The particle group to destroy.
    * @warning This function is locked during callbacks.
    */
   public void destroyParticlesInGroup(ParticleGroup group) {
@@ -1945,7 +1937,7 @@ public class World {
    * Set a buffer for particle data.
    * 
    * @param buffer is a pointer to a block of memory.
-   * @param size is the number of values in the block.
+   * @param capacity is the number of values in the block.
    */
   public void setParticleFlagsBuffer(int[] buffer, int capacity) {
     m_particleSystem.setParticleFlagsBuffer(buffer, capacity);

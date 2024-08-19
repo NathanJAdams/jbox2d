@@ -101,8 +101,8 @@ public abstract class TestbedTest
   private boolean bombSpawning = false;
 
   protected boolean mouseTracing;
-  private Vec2 mouseTracerPosition = new Vec2();
-  private Vec2 mouseTracerVelocity = new Vec2();
+  private final Vec2 mouseTracerPosition = new Vec2();
+  private final Vec2 mouseTracerVelocity = new Vec2();
 
   private final Vec2 mouseWorld = new Vec2();
   private int pointCount;
@@ -115,12 +115,12 @@ public abstract class TestbedTest
 
   private String title = null;
   protected int m_textLine;
-  private final LinkedList<String> textList = new LinkedList<String>();
+  private final LinkedList<String> textList = new LinkedList<>();
 
-  private TestbedCamera camera;
+  private final TestbedCamera camera;
 
-  private JbSerializer serializer;
-  private JbDeserializer deserializer;
+  private final JbSerializer serializer;
+  private final JbDeserializer deserializer;
 
   private final Transform identity = new Transform();
 
@@ -391,7 +391,7 @@ public abstract class TestbedTest
   private final Vec2 p1 = new Vec2();
   private final Vec2 p2 = new Vec2();
   private final Vec2 tangent = new Vec2();
-  private final List<String> statsList = new ArrayList<String>();
+  private final List<String> statsList = new ArrayList<>();
 
   private final Vec2 acceleration = new Vec2();
   private final CircleShape pshape = new CircleShape();
@@ -424,18 +424,13 @@ public abstract class TestbedTest
       m_textLine += TEXT_LINE_SPACE;
     }
 
-    int flags = 0;
-    flags += settings.getSetting(TestbedSettings.DrawShapes).enabled ? DebugDraw.e_shapeBit : 0;
-    flags += settings.getSetting(TestbedSettings.DrawJoints).enabled ? DebugDraw.e_jointBit : 0;
-    flags += settings.getSetting(TestbedSettings.DrawAABBs).enabled ? DebugDraw.e_aabbBit : 0;
-    flags +=
-        settings.getSetting(TestbedSettings.DrawCOMs).enabled ? DebugDraw.e_centerOfMassBit : 0;
-    flags += settings.getSetting(TestbedSettings.DrawTree).enabled ? DebugDraw.e_dynamicTreeBit : 0;
-    flags +=
-        settings.getSetting(TestbedSettings.DrawWireframe).enabled
-            ? DebugDraw.e_wireframeDrawingBit
-            : 0;
-    debugDraw.setFlags(flags);
+    debugDraw.clearFlags();
+    if (settings.getSetting(TestbedSettings.DrawShapes).enabled) { debugDraw.addFlag(DebugDraw.Flag.SHAPES); }
+    if (settings.getSetting(TestbedSettings.DrawJoints).enabled) { debugDraw.addFlag(DebugDraw.Flag.JOINTS); }
+    if (settings.getSetting(TestbedSettings.DrawAABBs).enabled) { debugDraw.addFlag(DebugDraw.Flag.AABB); }
+    if (settings.getSetting(TestbedSettings.DrawCOMs).enabled) { debugDraw.addFlag(DebugDraw.Flag.CENTER_OF_MASS); }
+    if (settings.getSetting(TestbedSettings.DrawTree).enabled) { debugDraw.addFlag(DebugDraw.Flag.DYNAMIC_TREE); }
+    if (settings.getSetting(TestbedSettings.DrawWireframe).enabled) { debugDraw.addFlag(DebugDraw.Flag.WIREFRAME_DRAWING); }
 
     m_world.setAllowSleep(settings.getSetting(TestbedSettings.AllowSleep).enabled);
     m_world.setWarmStarting(settings.getSetting(TestbedSettings.WarmStarting).enabled);
@@ -470,8 +465,7 @@ public abstract class TestbedTest
               + m_world.getProxyCount() + "/" + particleCount + "/" + groupCount, Color3f.WHITE);
       m_textLine += TEXT_LINE_SPACE;
 
-      debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld.toString(),
-          Color3f.WHITE);
+      debugDraw.drawString(5, m_textLine, "World mouse position: " + mouseWorld, Color3f.WHITE);
       m_textLine += TEXT_LINE_SPACE;
 
 
@@ -570,7 +564,7 @@ public abstract class TestbedTest
     }
   }
 
-  /************ INPUT ************/
+  /* INPUT */
 
   /**
    * Called for mouse-up
@@ -712,7 +706,7 @@ public abstract class TestbedTest
   private final Vec2 vel = new Vec2();
 
   private void completeBombSpawn(Vec2 p) {
-    if (bombSpawning == false) {
+    if (!bombSpawning) {
       return;
     }
 
@@ -723,7 +717,7 @@ public abstract class TestbedTest
     bombSpawning = false;
   }
 
-  /************ SERIALIZATION *************/
+  /* SERIALIZATION */
 
   /**
    * Override to enable saving and loading. Remember to also override the {@link ObjectListener} and
