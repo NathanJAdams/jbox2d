@@ -15,5 +15,4 @@ public interface ParticleRaycastCallback {
    * @return
    */
   float reportParticle(int index, Vec2 point, Vec2 normal, float fraction);
-
 }

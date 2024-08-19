@@ -426,7 +426,7 @@ public final class Box2D {
   /**
    * Protobuf type {@code box2d.PbVec2}
    */
-  public  static final class PbVec2 extends
+  public static final class PbVec2 extends
       com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:box2d.PbVec2)
       PbVec2OrBuilder {

@@ -217,7 +217,7 @@ public class TestbedModel {
     }
   }
 
-  public static interface TestChangedListener {
-    public void testChanged(TestbedTest test, int index);
+  public interface TestChangedListener {
+    void testChanged(TestbedTest test, int index);
   }
 }

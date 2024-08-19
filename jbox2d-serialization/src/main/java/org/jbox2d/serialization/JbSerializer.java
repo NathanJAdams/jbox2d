@@ -45,7 +45,7 @@ public interface JbSerializer {
 	 * which is then referenced later at deserialization for the user.
 	 * @param signer
 	 */
-	public void setObjectSigner(ObjectSigner signer);
+	void setObjectSigner(ObjectSigner signer);
 	
 	/**
 	 * Sets a listener for unsupported exception instead of 
@@ -53,7 +53,7 @@ public interface JbSerializer {
 	 * and exception.
 	 * @param listener
 	 */
-	public void setUnsupportedListener(UnsupportedListener listener);
+	void setUnsupportedListener(UnsupportedListener listener);
 
 	/**
 	 * Serializes the world
@@ -62,7 +62,7 @@ public interface JbSerializer {
    * @throws UnsupportedObjectException if a physics object is unsupported by this library.
    * @see #setUnsupportedListener(UnsupportedListener)
 	 */
-	public SerializationResult serialize(World world) throws UnsupportedObjectException;
+	SerializationResult serialize(World world) throws UnsupportedObjectException;
 	
 	/**
 	 * Serializes a body
@@ -71,7 +71,7 @@ public interface JbSerializer {
    * @throws UnsupportedObjectException if a physics object is unsupported by this library.
    * @see #setUnsupportedListener(UnsupportedListener)
 	 */
-	public SerializationResult serialize(Body body) throws UnsupportedObjectException;
+	SerializationResult serialize(Body body) throws UnsupportedObjectException;
 	
 	/**
 	 * Serializes a fixture
@@ -80,7 +80,7 @@ public interface JbSerializer {
 	 * @throws UnsupportedObjectException if a physics object is unsupported by this library.
 	 * @see #setUnsupportedListener(UnsupportedListener)
 	 */
-	public SerializationResult serialize(Fixture fixture) throws UnsupportedObjectException;
+	SerializationResult serialize(Fixture fixture) throws UnsupportedObjectException;
 	
 	/**
 	 * Serializes a shape
@@ -89,7 +89,7 @@ public interface JbSerializer {
    * @throws UnsupportedObjectException if a physics object is unsupported by this library.
    * @see #setUnsupportedListener(UnsupportedListener)
 	 */
-	public SerializationResult serialize(Shape shape) throws UnsupportedObjectException;
+	SerializationResult serialize(Shape shape) throws UnsupportedObjectException;
 	
 	/**
 	 * Serializes joints.  Joints need to reference bodies
@@ -99,7 +99,7 @@ public interface JbSerializer {
 	 * @param jointIndexMap
 	 * @return
 	 */
-	public SerializationResult serialize(Joint joint,
+	SerializationResult serialize(Joint joint,
 			Map<Body, Integer> bodyIndexMap,
 			Map<Joint, Integer> jointIndexMap);
 	
@@ -109,31 +109,31 @@ public interface JbSerializer {
 	 * used later during deserializing by the developer.
 	 * @author Daniel
 	 */
-	public static interface ObjectSigner {
+	interface ObjectSigner {
 		/**
 		 * @param world
 		 * @return the tag for the world. can be null.
 		 */
-		public Long getTag(World world);
+		Long getTag(World world);
 		/**
 		 * @param body
 		 * @return the tag for the body.  can be null.
 		 */
-		public Long getTag(Body body);
+		Long getTag(Body body);
 		/**
 		 * @param shape
 		 * @return the tag for the shape. can be null.
 		 */
-		public Long getTag(Shape shape);
+		Long getTag(Shape shape);
 		/**
 		 * @param fixture
 		 * @return the tag for the fixture. can be null.
 		 */
-		public Long getTag(Fixture fixture);
+		Long getTag(Fixture fixture);
 		/**
 		 * @param joint
 		 * @return the tag for the joint. can be null.
 		 */
-		public Long getTag(Joint joint);
+		Long getTag(Joint joint);
 	}
 }

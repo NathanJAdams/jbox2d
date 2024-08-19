@@ -31,7 +31,7 @@ public class VoronoiDiagram {
     }
   }
 
-  public static interface VoronoiDiagramCallback {
+  public interface VoronoiDiagramCallback {
     void callback(int aTag, int bTag, int cTag);
   }
 

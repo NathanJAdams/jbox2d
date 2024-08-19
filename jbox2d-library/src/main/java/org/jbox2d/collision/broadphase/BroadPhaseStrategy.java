@@ -42,7 +42,7 @@ public interface BroadPhaseStrategy {
    * overlaps the supplied AABB.
    * 
    * @param callback
-   * @param araabbgAABB
+   * @param aabb
    */
   void query(TreeCallback callback, AABB aabb);
 

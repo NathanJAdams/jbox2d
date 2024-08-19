@@ -40,12 +40,12 @@ public interface SerializationResult {
 	 * result.
 	 * @return serialization result
 	 */
-	public Object getValue();
+	Object getValue();
 	
 	/**
 	 * Writes the result to the given output stream.
 	 * @param argOutputStream
 	 * @throws IOException
 	 */
-	public void writeTo(OutputStream argOutputStream) throws IOException;
+	void writeTo(OutputStream argOutputStream) throws IOException;
 }

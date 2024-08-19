@@ -32,11 +32,10 @@ import org.jbox2d.collision.broadphase.DynamicTree;
  *
  */
 public interface TreeCallback {
-	
 	/**
 	 * Callback from a query request.  
 	 * @param proxyId the id of the proxy
 	 * @return if the query should be continued
 	 */
-	public boolean treeCallback(int proxyId);
+	boolean treeCallback(int proxyId);
 }

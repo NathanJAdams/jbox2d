@@ -35,11 +35,10 @@ import org.jbox2d.dynamics.World;
  * @author Daniel Murphy
  */
 public interface QueryCallback {
-
 	/**
 	 * Called for each fixture found in the query AABB.
 	 * @param fixture
 	 * @return false to terminate the query.
 	 */
-	public boolean reportFixture(Fixture fixture);
+	boolean reportFixture(Fixture fixture);
 }

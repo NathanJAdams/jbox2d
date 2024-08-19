@@ -34,14 +34,13 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.joints.Joint;
 
 public interface JbDeserializer {
-	
 	/**
 	 * Sets the object listener, which allows the
 	 * user to process each physics object with a
 	 * tag to do any sort of custom logic.
 	 * @param argListener
 	 */
-	public void setObjectListener(ObjectListener argListener);
+	void setObjectListener(ObjectListener argListener);
 	
 	/**
 	 * Sets a listener for unsupported exceptions instead of 
@@ -49,7 +48,7 @@ public interface JbDeserializer {
 	 * and exception.
 	 * @param argListener
 	 */
-	public void setUnsupportedListener(UnsupportedListener argListener);
+	void setUnsupportedListener(UnsupportedListener argListener);
 	
 	/**
 	 * Deserializes a world
@@ -59,7 +58,7 @@ public interface JbDeserializer {
 	 * @throws UnsupportedObjectException if a read physics object is unsupported by this library
 	 * @see #setUnsupportedListener(UnsupportedListener)
 	 */
-	public World deserializeWorld(InputStream input) throws IOException, UnsupportedObjectException;
+	World deserializeWorld(InputStream input) throws IOException, UnsupportedObjectException;
 
 	/**
    * Deserializes a body
@@ -70,7 +69,7 @@ public interface JbDeserializer {
    * @throws UnsupportedObjectException if a read physics object is unsupported by this library
    * @see #setUnsupportedListener(UnsupportedListener)
    */
-	public Body deserializeBody(World world, InputStream input) throws IOException, UnsupportedObjectException;
+	Body deserializeBody(World world, InputStream input) throws IOException, UnsupportedObjectException;
 	
 	/**
    * Deserializes a fixture
@@ -81,7 +80,7 @@ public interface JbDeserializer {
    * @throws UnsupportedObjectException if a read physics object is unsupported by this library
    * @see #setUnsupportedListener(UnsupportedListener)
    */
-	public Fixture deserializeFixture(Body body, InputStream input) throws IOException, UnsupportedObjectException;
+	Fixture deserializeFixture(Body body, InputStream input) throws IOException, UnsupportedObjectException;
 	
 	/**
    * Deserializes a shape
@@ -91,7 +90,7 @@ public interface JbDeserializer {
    * @throws UnsupportedObjectException if a read physics object is unsupported by this library
    * @see #setUnsupportedListener(UnsupportedListener)
    */
-	public Shape deserializeShape(InputStream input) throws IOException, UnsupportedObjectException;
+	Shape deserializeShape(InputStream input) throws IOException, UnsupportedObjectException;
 	
 	/**
    * Deserializes a joint
@@ -104,7 +103,7 @@ public interface JbDeserializer {
    * @throws UnsupportedObjectException if a read physics object is unsupported by this library
    * @see #setUnsupportedListener(UnsupportedListener)
    */
-	public Joint deserializeJoint(World world, InputStream input, Map<Integer, 
+	Joint deserializeJoint(World world, InputStream input, Map<Integer,
 								  Body> bodyMap, Map<Integer, Joint> jointMap) throws IOException, UnsupportedObjectException;
 	
 	/**
@@ -112,16 +111,16 @@ public interface JbDeserializer {
 	 * @author dmurph
 	 *
 	 */
-	public static interface ObjectListener{
+	interface ObjectListener{
 		
-		public void processWorld(World world, Long tag);
+		void processWorld(World world, Long tag);
 		
-		public void processBody(Body body, Long tag);
+		void processBody(Body body, Long tag);
 		
-		public void processFixture(Fixture fixture, Long tag);
+		void processFixture(Fixture fixture, Long tag);
 		
-		public void processShape(Shape shape, Long tag);
+		void processShape(Shape shape, Long tag);
 		
-		public void processJoint(Joint joint, Long tag);
+		void processJoint(Joint joint, Long tag);
 	}
 }
